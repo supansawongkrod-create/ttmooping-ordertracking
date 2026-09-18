@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="zh-Hant-TW">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="使用訂購時填寫的手機號碼查詢低溫宅配單號">
+  <meta name="theme-color" content="#9e2f25">
+  <title>宅配單號查詢｜泰式烤肉串</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='15' fill='%239e2f25'/%3E%3Cpath d='M17 24h30v24H17z' fill='%23fff4dc'/%3E%3Cpath d='M17 24l15-9 15 9-15 9z' fill='%23f6c363'/%3E%3Cpath d='M32 33v15' stroke='%239e2f25' stroke-width='4'/%3E%3C/svg%3E">
+  <style>
+    :root{--wine:#8d2b24;--red:#b43e31;--gold:#efa942;--cream:#fff9ed;--ink:#2a201e;--muted:#70625e;--line:#eadbca;--white:#fff;--shadow:0 22px 60px rgba(66,35,22,.14)}
+    *{box-sizing:border-box}
+    body{margin:0;min-height:100vh;font-family:"Noto Sans Thai","Leelawadee UI",Tahoma,sans-serif;color:var(--ink);background:radial-gradient(circle at 15% 10%,rgba(239,169,66,.26),transparent 32%),linear-gradient(150deg,#fff8e9 0%,#f7ead9 100%);display:grid;place-items:center;padding:28px 18px}
+    main{width:min(100%,520px)}
+    .brand{display:flex;align-items:center;gap:13px;margin:0 0 18px 6px;color:var(--wine);font-weight:800;letter-spacing:.01em}
+    .brand-mark{width:43px;height:43px;border-radius:14px;background:var(--wine);display:grid;place-items:center;box-shadow:0 8px 20px rgba(141,43,36,.24)}
+    .brand-mark svg{width:25px;height:25px}
+    .card{background:rgba(255,255,255,.91);border:1px solid rgba(255,255,255,.8);border-radius:30px;padding:34px;box-shadow:var(--shadow);backdrop-filter:blur(12px)}
+    .eyebrow{display:inline-flex;align-items:center;gap:8px;color:var(--red);font-size:.86rem;font-weight:800;text-transform:uppercase;letter-spacing:.08em;margin-bottom:12px}
+    .eyebrow:before{content:"";width:22px;height:3px;border-radius:99px;background:var(--gold)}
+    h1{font-size:clamp(2rem,7vw,3rem);line-height:1.12;margin:0 0 12px;letter-spacing:-.035em}
+    .intro{font-size:1rem;line-height:1.7;color:var(--muted);margin:0 0 28px}
+    label{display:block;font-weight:750;font-size:.95rem;margin:0 0 9px}
+    .field{display:flex;gap:10px}
+    input{width:100%;min-width:0;height:55px;border:1.5px solid var(--line);border-radius:15px;padding:0 16px;font:inherit;font-size:1.05rem;color:var(--ink);background:#fff;outline:none;transition:.2s}
+    input:focus{border-color:var(--red);box-shadow:0 0 0 4px rgba(180,62,49,.12)}
+    button,.track-link{height:55px;border:0;border-radius:15px;padding:0 21px;background:var(--wine);color:#fff;font:inherit;font-weight:800;cursor:pointer;white-space:nowrap;display:inline-flex;align-items:center;justify-content:center;text-decoration:none;transition:transform .15s,background .15s}
+    button:hover,.track-link:hover{background:#742019;transform:translateY(-1px)}
+    button:disabled{opacity:.65;cursor:wait;transform:none}
+    .hint{margin:10px 2px 0;font-size:.82rem;color:#877773}
+    .message{display:none;margin-top:22px;border-radius:19px;padding:19px}
+    .message.show{display:block;animation:rise .24s ease-out}
+    .message.error{background:#fff1ef;color:#8e271e;border:1px solid #f3cbc5}
+    .message.success{background:#fff8e8;border:1px solid #f0d497}
+    .result-label{font-size:.82rem;color:var(--muted);font-weight:700;margin-bottom:6px}
+    .tracking{font-size:1.32rem;font-weight:850;letter-spacing:.045em;overflow-wrap:anywhere;margin-bottom:15px}
+    .actions{display:flex;gap:9px;flex-wrap:wrap}
+    .actions .track-link{height:46px;font-size:.92rem}
+    .copy{height:46px;background:#fff;color:var(--wine);border:1.5px solid #d9b6ad;font-size:.92rem}
+    .privacy{display:flex;gap:9px;align-items:flex-start;margin:20px 4px 0;color:#796b66;font-size:.78rem;line-height:1.55}
+    .privacy svg{width:16px;min-width:16px;margin-top:2px;color:var(--wine)}
+    footer{text-align:center;color:#8b7a73;font-size:.78rem;margin-top:18px}
+    @keyframes rise{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+    @media(max-width:520px){body{padding:18px 14px}.card{padding:27px 21px;border-radius:24px}.field{display:block}.field button{width:100%;margin-top:10px}.tracking{font-size:1.14rem}}
+    @media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;animation:none!important;transition:none!important}}
+  </style>
+</head>
+<body>
+  <main>
+    <div class="brand">
+      <span class="brand-mark" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><path d="M4 8.2 12 4l8 4.2V19H4V8.2Z" fill="#fff4dc"/><path d="m4 8.2 8 4.3 8-4.3M12 12.5V19" stroke="#efa942" stroke-width="1.8" stroke-linejoin="round"/></svg></span>
+      <span>ttmooping 泰國烤豬串</span>
+    </div>
+    <section class="card" aria-labelledby="title">
+      <div class="eyebrow">黑貓冷凍宅配</div>
+      <h1 id="title">查詢您的宅配單號</h1>
+      <p class="intro">請輸入訂購時填寫的手機號碼，系統只會顯示與該號碼相符的宅配單號。</p>
+      <form id="lookup-form" novalidate>
+        <label for="phone">手機號碼</label>
+        <div class="field">
+          <input id="phone" name="phone" inputmode="numeric" autocomplete="tel" maxlength="12" placeholder="09XXXXXXXX" aria-describedby="phone-hint" required>
+          <button id="submit" type="submit">查詢</button>
+        </div>
+        <p class="hint" id="phone-hint">請輸入 10 碼手機號碼，不需輸入空格或連字號。</p>
+      </form>
+      <div id="message" class="message" role="status" aria-live="polite"></div>
+      <div class="privacy"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M7 10V8a5 5 0 0 1 10 0v2m-11 0h12v10H6V10Z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg><span>為保護您的隱私，本網站僅會顯示屬於您的資料。</span></div>
+    </section>
+    <footer>黑貓宅急便低溫配送</footer>
+  </main>
+  <script>
+    const shipments={
+      'e11ed428337aca9ed820918b723d20a77177a0029e29270b4bed1489adc0579f':'129213365976','020e13919d3d1955cf9398856571247a6633d9b241c1560c3dcc05b8c2da1687':'129213365730','c3942a3b922552841cb3b6ac19b4f86a49ba8d37f1242131f40144dd2b3336b2':'129213365853','e750afec788986abd55adb341835647e6ab667f2d4c150c43f8e4e6a94f14b9f':'129213365763','ed94faa72a1cc61b38da8e0a1ec6c9d44f4592842243ad37cab77dfccde77201':'129213365774','c5d65666db2a04e342203109ba394fcc83dd97c2523bfab37dbdd129625de52d':'129213365886','883cbdea33bf426f77e7135c20de2158efd29435e78df37c14f22b2bbb74a4b8':'129213365752','ba3f8bd3610d350129417fdc831ca6857b038567efe692356ef8968a42316f4c':'129213365805','93a2bf49624f7ce1affc6292d961119256c7640eb080b0f6b199d4305b1b9568':'129213365816','046fe142858850eafb6e5aea2216a7482433d0f0fc85463d63a55dd001b2c411':'129213365741','1a2dd7b818eb576fc41bb33c712bcee00e8d77b8d5c7f45cb332fe2c9538c834':'129213365831','b85440a7053e3625ed242776a20347d90af1f8c3ea6ebf1eaac26fc0eb494590':'129213365842','dbcf6468673c7ae493aa407705e4f5c72f8c73886fd0dda2783bf81540bfd184':'129213365864','5761d8cb85b1be3ba2cafc403ed12aaf75d44753810bf9ea685d863787072b52':'129213365820','9581171cb7a826c10beae6e0b96005d6500ebd5f7f1faee1998cf793a6382a5a':'129213365875','53159c4fc223f779e26476c475cedfdc91173bef6b2fe985743ff2270a0c2dce':'129213365785','fbdbb5132dbc19fcc5069a2f2f6042da16e71886fe86c494695ed94800b41dcc':'129213365890','76e36556abf240d941d446008748fbde9368767d4a308730dab380bcb27b0040':'129213365906','bb65d5487cd69e8d44d7f03985e10544b2f9913750878da52b162789c620fbfc':'129213365910','8baaa57fc56f2de902738842e578320591cfaf65a2d2942e9d02766f26106e83':'129213365921','14d62ab43d84f247bc9bb9fd6651d72f19ab263ba1d3058f705aad9c9f169b5f':'129213365932','ced00d62c17e56820e29a2aa9133a50bfebc5412f4d6baa676e15a78cb6d78c0':'129213365943','eabd4d5cb2e76420bdbb7b11ce495b34a845b4bd51bf0741b2d81859068fbc6f':'129213365796','fd98782a91e616dd978245a987c07619f32efd078190cb7f39a26340f8467c23':'129213365954','ac0bd3f0197a15d8bfb70382f11b9b58eddceddfb3d195600eb35924a717aca8':'129213365965','0057e9eaf9e54db46e0a729c76bd524ed8040123cdc650eb10efa2c9d859783c':'129213365412'
+    };
+    const form=document.getElementById('lookup-form'),phone=document.getElementById('phone'),message=document.getElementById('message'),submit=document.getElementById('submit');
+    const digest=async value=>{const bytes=new TextEncoder().encode('poy-pork-2026|'+value);const hash=await crypto.subtle.digest('SHA-256',bytes);return [...new Uint8Array(hash)].map(b=>b.toString(16).padStart(2,'0')).join('')};
+    const format=n=>`${n.slice(0,4)}-${n.slice(4,8)}-${n.slice(8)}`;
+    function showError(text){message.className='message error show';message.textContent=text}
+    form.addEventListener('submit',async e=>{e.preventDefault();const value=phone.value.replace(/\D/g,'');if(!/^09\d{8}$/.test(value)){showError('請輸入正確的 10 碼台灣手機號碼。');phone.focus();return}submit.disabled=true;submit.textContent='查詢中…';try{const key=await digest(value),tracking=shipments[key];if(!tracking){showError('查無此手機號碼的宅配資料，請確認您輸入的是訂購時填寫的號碼。');return}const url=`https://www.t-cat.com.tw/Inquire/TraceDetail.aspx?BillID=${tracking}`;message.className='message success show';message.innerHTML=`<div class="result-label">您的宅配單號</div><div class="tracking">${format(tracking)}</div><div class="actions"><a class="track-link" href="${url}" target="_blank" rel="noopener">前往黑貓查詢</a><button class="copy" type="button" data-copy="${tracking}">複製單號</button></div>`}catch{showError('系統暫時無法查詢，請稍後再試。')}finally{submit.disabled=false;submit.textContent='查詢'}});
+    message.addEventListener('click',async e=>{const b=e.target.closest('[data-copy]');if(!b)return;await navigator.clipboard.writeText(b.dataset.copy);b.textContent='已複製 ✓';setTimeout(()=>b.textContent='複製單號',1600)});
+    phone.addEventListener('input',()=>{phone.value=phone.value.replace(/\D/g,'');if(message.classList.contains('show'))message.className='message'});
+  </script>
+</body>
+</html>

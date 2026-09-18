@@ -2,15 +2,15 @@
 <html lang="zh-Hant-TW">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no">
   <meta name="description" content="使用訂購時填寫的手機號碼查詢低溫宅配單號">
   <meta name="theme-color" content="#fff8e8">
-  <title>宅配單號查詢｜泰泰烤豬串 Preview 2</title>
+  <title>宅配單號查詢｜泰泰烤豬串</title>
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='15' fill='%239e2f25'/%3E%3Cpath d='M17 24h30v24H17z' fill='%23fff4dc'/%3E%3Cpath d='M17 24l15-9 15 9-15 9z' fill='%23f6c363'/%3E%3Cpath d='M32 33v15' stroke='%239e2f25' stroke-width='4'/%3E%3C/svg%3E">
   <style>
     :root{--black:#17120b;--panel:#fffdfa;--gold:#f2a400;--gold-dark:#d68e00;--cream:#fff8e8;--ink:#241a0c;--muted:#756a59;--line:#ead6aa;--white:#fff;--shadow:0 28px 80px rgba(103,68,6,.16)}
     *{box-sizing:border-box}
-    body{margin:0;min-height:100vh;font-family:"Noto Sans TC","PingFang TC",Tahoma,sans-serif;color:var(--ink);background:radial-gradient(circle at 14% 8%,rgba(242,164,0,.24),transparent 31%),radial-gradient(circle at 90% 92%,rgba(242,164,0,.14),transparent 28%),linear-gradient(145deg,#fffdf7 0%,#fff6e4 52%,#f8e8c5 100%);display:grid;place-items:center;padding:28px 18px}
+    body{margin:0;min-height:100vh;font-family:"Noto Sans TC","PingFang TC",Tahoma,sans-serif;color:var(--ink);background:radial-gradient(circle at 14% 8%,rgba(242,164,0,.24),transparent 31%),radial-gradient(circle at 90% 92%,rgba(242,164,0,.14),transparent 28%),linear-gradient(145deg,#fffdf7 0%,#fff6e4 52%,#f8e8c5 100%);display:grid;place-items:center;padding:28px 18px;touch-action:pan-x pan-y}
     main{width:min(100%,520px)}
     .brand{display:flex;align-items:center;gap:14px;margin:0 0 20px 6px;color:var(--gold);font-weight:850;letter-spacing:.02em}
     .brand-mark{width:52px;height:52px;border-radius:50%;overflow:hidden;border:2px solid var(--gold);background:#000;box-shadow:0 8px 24px rgba(242,164,0,.24)}
@@ -79,6 +79,8 @@
     form.addEventListener('submit',async e=>{e.preventDefault();const value=phone.value.replace(/\D/g,'');if(!/^09\d{8}$/.test(value)){showError('請輸入正確的 10 碼台灣手機號碼。');phone.focus();return}submit.disabled=true;submit.textContent='查詢中…';try{const key=await digest(value),tracking=shipments[key];if(!tracking){showError('查無此手機號碼的宅配資料，請確認您輸入的是訂購時填寫的號碼。');return}const url=`https://www.t-cat.com.tw/Inquire/TraceDetail.aspx?BillID=${tracking}`;message.className='message success show';message.innerHTML=`<div class="result-label">您的宅配單號</div><div class="tracking">${format(tracking)}</div><div class="actions"><a class="track-link" href="${url}" target="_blank" rel="noopener">前往黑貓查詢</a><button class="copy" type="button" data-copy="${tracking}">複製單號</button></div>`}catch{showError('系統暫時無法查詢，請稍後再試。')}finally{submit.disabled=false;submit.textContent='查詢'}});
     message.addEventListener('click',async e=>{const b=e.target.closest('[data-copy]');if(!b)return;await navigator.clipboard.writeText(b.dataset.copy);b.textContent='已複製 ✓';setTimeout(()=>b.textContent='複製單號',1600)});
     phone.addEventListener('input',()=>{phone.value=phone.value.replace(/\D/g,'');if(message.classList.contains('show'))message.className='message'});
+    document.addEventListener('gesturestart',event=>event.preventDefault(),{passive:false});
+    document.addEventListener('touchmove',event=>{if(event.touches.length>1)event.preventDefault()},{passive:false});
   </script>
 </body>
 </html>

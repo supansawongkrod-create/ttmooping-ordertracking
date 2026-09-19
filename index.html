@@ -74,34 +74,11 @@
     <footer>黑貓宅急便低溫配送</footer>
   </main>
   <script>
-    const API_URL='/api/ordertracking';
+    const API_URL='https://script.google.com/macros/s/AKfycbxAgWawSRlh1PsoVEX5UoU-btb0Ia5pKCMWDNYBq5RzBZJ472PO5MNi7IDLwrrFZzwG/exec';
     const form=document.getElementById('lookup-form'),phone=document.getElementById('phone'),message=document.getElementById('message'),submit=document.getElementById('submit');
     const resultCache=new Map();
     const format=n=>`${n.slice(0,4)}-${n.slice(4,8)}-${n.slice(8)}`;
-async function lookup(value, { useCache = true } = {}) {
-  const phoneNumber = String(value || '').replace(/\D/g, '');
-
-  if (useCache && resultCache.has(phoneNumber)) {
-    return resultCache.get(phoneNumber);
-  }
-
-  const response = await fetch(
-    API_URL + '?phone=' + encodeURIComponent(phoneNumber),
-    { cache: 'no-store' }
-  );
-
-  if (!response.ok) {
-    throw new Error('API error');
-  }
-
-  const data = await response.json();
-
-  if (useCache) {
-    resultCache.set(phoneNumber, data);
-  }
-
-  return data;
-}
+    function showError(text){message.className='message error show';message.textContent=text}
     function lookup(value,{useCache=true}={}){if(useCache&&resultCache.has(value))return Promise.resolve(resultCache.get(value));return new Promise((resolve,reject)=>{const callback=`ttLookup_${Date.now()}_${Math.random().toString(36).slice(2)}`,script=document.createElement('script');let timer;const cleanup=()=>{clearTimeout(timer);delete window[callback];script.remove()};window[callback]=data=>{cleanup();if(useCache)resultCache.set(value,data);resolve(data)};script.onerror=()=>{cleanup();reject(new Error('network'))};timer=setTimeout(()=>{cleanup();reject(new Error('timeout'))},30000);script.src=`${API_URL}?phone=${encodeURIComponent(value)}&callback=${encodeURIComponent(callback)}&_=${Date.now()}`;document.head.appendChild(script)})}
     function renderTracking(numbers){message.className='message success show';message.innerHTML=numbers.map(tracking=>{const url=`https://www.t-cat.com.tw/Inquire/TraceDetail.aspx?BillID=${tracking}`;return `<div class="result-label">您的宅配單號</div><div class="tracking">${format(tracking)}</div><div class="actions"><a class="track-link" href="${url}" target="_blank" rel="noopener">前往黑貓查詢</a><button class="copy" type="button" data-copy="${tracking}">複製單號</button></div>`}).join('')}
     form.addEventListener('submit',async e=>{e.preventDefault();const value=phone.value.replace(/\D/g,'');if(!/^0\d{8,9}$/.test(value)){showError('請輸入正確的電話號碼。');phone.focus();return}submit.disabled=true;submit.textContent='查詢中…';try{const data=await lookup(value),numbers=Array.isArray(data.trackingNumbers)?data.trackingNumbers.filter(n=>/^\d{12}$/.test(n)):[];if(!data.success||!data.found||!numbers.length){showError('查無此手機號碼的宅配資料，請確認您輸入的是訂購時填寫的號碼。');return}renderTracking(numbers)}catch{showError('系統暫時無法查詢，請稍後再試。')}finally{submit.disabled=false;submit.textContent='查詢'}});

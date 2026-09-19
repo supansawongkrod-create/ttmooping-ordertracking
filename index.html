@@ -63,10 +63,10 @@
       <form id="lookup-form" novalidate>
         <label for="phone">手機號碼</label>
         <div class="field">
-          <input id="phone" name="phone" inputmode="numeric" autocomplete="tel" maxlength="12" placeholder="09XXXXXXXX" aria-describedby="phone-hint" required>
+          <input id="phone" name="phone" inputmode="numeric" autocomplete="tel" maxlength="12" placeholder="請輸入電話號碼" aria-describedby="phone-hint" required>
           <button id="submit" type="submit">查詢</button>
         </div>
-        <p class="hint" id="phone-hint">請輸入 10 碼手機號碼，不需輸入空格或連字號。</p>
+        <p class="hint" id="phone-hint">請輸入訂購時填寫的電話號碼，不需輸入空格或連字號。</p>
       </form>
       <div id="message" class="message" role="status" aria-live="polite"></div>
       <div class="privacy"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M7 10V8a5 5 0 0 1 10 0v2m-11 0h12v10H6V10Z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg><span>為保護您的隱私，本網站僅會顯示屬於您的資料。</span></div>
@@ -81,7 +81,7 @@
     function showError(text){message.className='message error show';message.textContent=text}
     function lookup(value,{useCache=true}={}){if(useCache&&resultCache.has(value))return Promise.resolve(resultCache.get(value));return new Promise((resolve,reject)=>{const callback=`ttLookup_${Date.now()}_${Math.random().toString(36).slice(2)}`,script=document.createElement('script');let timer;const cleanup=()=>{clearTimeout(timer);delete window[callback];script.remove()};window[callback]=data=>{cleanup();if(useCache)resultCache.set(value,data);resolve(data)};script.onerror=()=>{cleanup();reject(new Error('network'))};timer=setTimeout(()=>{cleanup();reject(new Error('timeout'))},30000);script.src=`${API_URL}?phone=${encodeURIComponent(value)}&callback=${encodeURIComponent(callback)}&_=${Date.now()}`;document.head.appendChild(script)})}
     function renderTracking(numbers){message.className='message success show';message.innerHTML=numbers.map(tracking=>{const url=`https://www.t-cat.com.tw/Inquire/TraceDetail.aspx?BillID=${tracking}`;return `<div class="result-label">您的宅配單號</div><div class="tracking">${format(tracking)}</div><div class="actions"><a class="track-link" href="${url}" target="_blank" rel="noopener">前往黑貓查詢</a><button class="copy" type="button" data-copy="${tracking}">複製單號</button></div>`}).join('')}
-    form.addEventListener('submit',async e=>{e.preventDefault();const value=phone.value.replace(/\D/g,'');if(!/^09\d{8}$/.test(value)){showError('請輸入正確的 10 碼台灣手機號碼。');phone.focus();return}submit.disabled=true;submit.textContent='查詢中…';try{const data=await lookup(value),numbers=Array.isArray(data.trackingNumbers)?data.trackingNumbers.filter(n=>/^\d{12}$/.test(n)):[];if(!data.success||!data.found||!numbers.length){showError('查無此手機號碼的宅配資料，請確認您輸入的是訂購時填寫的號碼。');return}renderTracking(numbers)}catch{showError('系統暫時無法查詢，請稍後再試。')}finally{submit.disabled=false;submit.textContent='查詢'}});
+    form.addEventListener('submit',async e=>{e.preventDefault();const value=phone.value.replace(/\D/g,'');if(!/^0\d{8,9}$/.test(value)){showError('請輸入正確的電話號碼。');phone.focus();return}submit.disabled=true;submit.textContent='查詢中…';try{const data=await lookup(value),numbers=Array.isArray(data.trackingNumbers)?data.trackingNumbers.filter(n=>/^\d{12}$/.test(n)):[];if(!data.success||!data.found||!numbers.length){showError('查無此手機號碼的宅配資料，請確認您輸入的是訂購時填寫的號碼。');return}renderTracking(numbers)}catch{showError('系統暫時無法查詢，請稍後再試。')}finally{submit.disabled=false;submit.textContent='查詢'}});
     message.addEventListener('click',async e=>{const b=e.target.closest('[data-copy]');if(!b)return;await navigator.clipboard.writeText(b.dataset.copy);b.textContent='已複製 ✓';setTimeout(()=>b.textContent='複製單號',1600)});
     phone.addEventListener('input',()=>{phone.value=phone.value.replace(/\D/g,'');if(message.classList.contains('show'))message.className='message'});
     setTimeout(()=>lookup('0900000000',{useCache:false}).catch(()=>{}),150);

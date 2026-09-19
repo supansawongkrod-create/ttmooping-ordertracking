@@ -34,7 +34,8 @@ export default async function handler(req, res) {
 
     if (data.result) {
       try {
-        trackingNumbers = JSON.parse(data.result);
+        const decoded = decodeURIComponent(data.result);
+        trackingNumber = JSON.parse(decoded);
       } catch {
         trackingNumbers = [];
       }

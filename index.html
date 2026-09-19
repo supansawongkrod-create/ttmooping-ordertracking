@@ -84,7 +84,6 @@
     form.addEventListener('submit',async e=>{e.preventDefault();const value=phone.value.replace(/\D/g,'');if(!/^0\d{8,9}$/.test(value)){showError('請輸入正確的電話號碼。');phone.focus();return}submit.disabled=true;submit.textContent='查詢中…';try{const data=await lookup(value),numbers=Array.isArray(data.trackingNumbers)?data.trackingNumbers.filter(n=>/^\d{12}$/.test(n)):[];if(!data.success||!data.found||!numbers.length){showError('查無此手機號碼的宅配資料，請確認您輸入的是訂購時填寫的號碼。');return}renderTracking(numbers)}catch{showError('系統暫時無法查詢，請稍後再試。')}finally{submit.disabled=false;submit.textContent='查詢'}});
     message.addEventListener('click',async e=>{const b=e.target.closest('[data-copy]');if(!b)return;await navigator.clipboard.writeText(b.dataset.copy);b.textContent='已複製 ✓';setTimeout(()=>b.textContent='複製單號',1600)});
     phone.addEventListener('input',()=>{phone.value=phone.value.replace(/\D/g,'');if(message.classList.contains('show'))message.className='message'});
-    setTimeout(()=>lookup('0900000000',{useCache:false}).catch(()=>{}),150);
     document.addEventListener('gesturestart',event=>event.preventDefault(),{passive:false});
     document.addEventListener('touchmove',event=>{if(event.touches.length>1)event.preventDefault()},{passive:false});
   </script>

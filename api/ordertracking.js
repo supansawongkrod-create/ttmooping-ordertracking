@@ -1,10 +1,16 @@
 export default async function handler(req, res) {
+  // อนุญาตเฉพาะ GET
   if (req.method !== 'GET') {
-    return res.status(405).json({ success: false });
+    return res.status(405).json({
+      success: false
+    });
   }
 
-  const phone = String(req.query.phone || '').replace(/\D/g, '');
+  // Normalize phone
+  const phone = String(req.query.phone || '')
+    .replace(/\D/g, '');
 
+  // Server-side validation
   if (!/^0\d{8,9}$/.test(phone)) {
     return res.status(400).json({
       success: false,
@@ -15,31 +21,50 @@ export default async function handler(req, res) {
   }
 
   try {
-    const response = await fetch(
-      `${process.env.KV_REST_API_URL}/get/TRACKING_${encodeURIComponent(phone)}`,
-      {
-        headers: {
-          Authorization: `Bearer ${process.env.KV_REST_API_TOKEN}`
-        }
+    if (
+      !process.env.SUPABASE_URL ||
+      !process.env.SUPABASE_SECRET_KEY
+    ) {
+      throw new Error('Missing Supabase environment variables');
+    }
+
+    const url =
+      `${process.env.SUPABASE_URL}/rest/v1/tracking` +
+      `?phone=eq.${encodeURIComponent(phone)}` +
+      `&select=tracking_number`;
+
+    const response = await fetch(url, {
+      headers: {
+        apikey: process.env.SUPABASE_SECRET_KEY,
+        Authorization:
+          `Bearer ${process.env.SUPABASE_SECRET_KEY}`
       }
-    );
+    });
 
     if (!response.ok) {
-      throw new Error('Redis request failed');
+      throw new Error(
+        `Supabase request failed: ${response.status}`
+      );
     }
 
     const data = await response.json();
 
-    let trackingNumbers = [];
+    const trackingNumbers = [
+      ...new Set(
+        data
+          .map(row =>
+            String(row.tracking_number || '')
+              .replace(/\D/g, '')
+          )
+          .filter(Boolean)
+      )
+    ];
 
-    if (data.result) {
-      try {
-        const decoded = decodeURIComponent(data.result);
-        trackingNumbers = JSON.parse(decoded);
-      } catch {
-        trackingNumbers = [];
-      }
-    }
+    // ไม่ cache ข้อมูลลูกค้า
+    res.setHeader(
+      'Cache-Control',
+      'private, no-store, max-age=0'
+    );
 
     return res.status(200).json({
       success: true,
@@ -48,6 +73,8 @@ export default async function handler(req, res) {
     });
 
   } catch (error) {
+    console.error(error);
+
     return res.status(500).json({
       success: false,
       found: false,

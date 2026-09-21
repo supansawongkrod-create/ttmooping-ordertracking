@@ -1,0 +1,7 @@
+{
+  "functions": {
+    "api/ordertracking.js": {
+      "regions": ["sin1"]
+    }
+  }
+}

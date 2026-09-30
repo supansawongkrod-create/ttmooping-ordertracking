@@ -25,7 +25,9 @@ export default async function handler(req, res) {
       !process.env.SUPABASE_URL ||
       !process.env.SUPABASE_SECRET_KEY
     ) {
-      throw new Error('Missing Supabase environment variables');
+      throw new Error(
+        'Missing Supabase environment variables'
+      );
     }
 
     const url =
@@ -35,7 +37,8 @@ export default async function handler(req, res) {
 
     const response = await fetch(url, {
       headers: {
-        apikey: process.env.SUPABASE_SECRET_KEY,
+        apikey:
+          process.env.SUPABASE_SECRET_KEY,
         Authorization:
           `Bearer ${process.env.SUPABASE_SECRET_KEY}`
       }
@@ -49,16 +52,23 @@ export default async function handler(req, res) {
 
     const data = await response.json();
 
-    const trackingNumbers = [
-      ...new Set(
-        data
-          .map(row =>
-            String(row.tracking_number || '')
-              .replace(/\D/g, '')
-          )
-          .filter(Boolean)
-      )
-    ];
+    // ใช้เฉพาะรายการสุดท้ายของเบอร์นี้
+    const latestRow =
+      data.length > 0
+        ? data[data.length - 1]
+        : null;
+
+    const latestTrackingNumber =
+      latestRow
+        ? String(
+            latestRow.tracking_number || ''
+          ).replace(/\D/g, '')
+        : '';
+
+    const trackingNumbers =
+      latestTrackingNumber
+        ? [latestTrackingNumber]
+        : [];
 
     // ไม่ cache ข้อมูลลูกค้า
     res.setHeader(

@@ -1,23 +1,16 @@
-const APPS_SCRIPT_URL =
-  'https://script.google.com/macros/s/AKfycbxAgWawSRlh1PsoVEX5UoU-btb0Ia5pKCMWDNYBq5RzBZJ472PO5MNi7IDLwrrFZzwG/exec';
-
-
 export default async function handler(req, res) {
   // อนุญาตเฉพาะ GET
   if (req.method !== 'GET') {
     return res.status(405).json({
-      success: false,
-      found: false,
-      trackingNumbers: []
+      success: false
     });
   }
 
-  // ลบช่องว่างและอักขระที่ไม่ใช่ตัวเลข
-  const phone = String(
-    req.query.phone || ''
-  ).replace(/\D/g, '');
+  // Normalize phone
+  const phone = String(req.query.phone || '')
+    .replace(/\D/g, '');
 
-  // ตรวจสอบรูปแบบเบอร์โทร
+  // Server-side validation
   if (!/^0\d{8,9}$/.test(phone)) {
     return res.status(400).json({
       success: false,
@@ -28,51 +21,48 @@ export default async function handler(req, res) {
   }
 
   try {
+    if (
+      !process.env.SUPABASE_URL ||
+      !process.env.SUPABASE_SECRET_KEY
+    ) {
+      throw new Error(
+        'Missing Supabase environment variables'
+      );
+    }
+
     const url =
-      `${APPS_SCRIPT_URL}` +
-      `?phone=${encodeURIComponent(phone)}`;
+      `${process.env.SUPABASE_URL}/rest/v1/tracking` +
+      `?phone=eq.${encodeURIComponent(phone)}` +
+      `&select=tracking_number`;
 
     const response = await fetch(url, {
-      method: 'GET',
       headers: {
-        Accept: 'application/json'
-      },
-      redirect: 'follow',
-      cache: 'no-store'
+        apikey: process.env.SUPABASE_SECRET_KEY,
+        Authorization:
+          `Bearer ${process.env.SUPABASE_SECRET_KEY}`
+      }
     });
 
     if (!response.ok) {
       throw new Error(
-        `Apps Script request failed: ${response.status}`
+        `Supabase request failed: ${response.status}`
       );
     }
 
     const data = await response.json();
 
-    if (!data.success) {
-      return res.status(200).json({
-        success: false,
-        found: false,
-        message:
-          data.message ||
-          '系統暫時無法查詢',
-        trackingNumbers: []
-      });
-    }
+    const trackingNumbers = [
+      ...new Set(
+        data
+          .map(row =>
+            String(row.tracking_number || '')
+              .replace(/\D/g, '')
+          )
+          .filter(Boolean)
+      )
+    ];
 
-    // ป้องกันไม่ให้หน้าเว็บแสดงเกินหนึ่งเลข
-    const trackingNumbers =
-      Array.isArray(data.trackingNumbers)
-        ? data.trackingNumbers
-            .map(number =>
-              String(number || '')
-                .replace(/\D/g, '')
-            )
-            .filter(Boolean)
-            .slice(0, 1)
-        : [];
-
-    // ไม่เก็บ Cache ข้อมูลลูกค้า
+    // ไม่ cache ข้อมูลลูกค้า
     res.setHeader(
       'Cache-Control',
       'private, no-store, max-age=0'
@@ -81,7 +71,7 @@ export default async function handler(req, res) {
     return res.status(200).json({
       success: true,
       found: trackingNumbers.length > 0,
-      trackingNumbers: trackingNumbers
+      trackingNumbers
     });
 
   } catch (error) {
